@@ -1,5 +1,8 @@
 package me.carlosribeiro.uniara_virtual_api;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import me.carlosribeiro.uniara_virtual_api.models.Student;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
@@ -17,13 +20,14 @@ import java.io.UnsupportedEncodingException;
 
 public class UniaraVirtualAPI {
     public String login(String ra, String password) {
+        //TODO: move all this shit here to a specific class to handle http requests
         HttpClient httpClient =  HttpClientBuilder.create().build();
         HttpPost postRequest = new HttpPost(
                 "https://uniara-virtual-api.herokuapp.com/login"
         );
         try {
-            String json = "{\"ra\":\"" + ra + "\", \"password\":\"" + password + "\"}";
-            StringEntity input = new StringEntity(json);
+            Student student = new Student(ra, password);
+            StringEntity input = new StringEntity(student.toJson());
 
             input.setContentType("application/json");
             postRequest.setEntity(input);
