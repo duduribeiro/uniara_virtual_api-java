@@ -1,47 +1,27 @@
 package me.carlosribeiro.uniara_virtual_api;
 
+import com.squareup.okhttp.*;
 import me.carlosribeiro.uniara_virtual_api.models.Student;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 
 public class UniaraVirtualAPI {
-    public String login(String ra, String password) {
+    public static final MediaType JSON
+            = MediaType.parse("application/json; charset=utf-8");
+    public String login(String ra, String password) throws IOException{
         //TODO: move all this shit here to a specific class to handle http requests
-        HttpClient httpClient =  HttpClientBuilder.create().build();
-        HttpPost postRequest = new HttpPost(
-                "https://uniara-virtual-api.herokuapp.com/login"
-        );
-        try {
-            Student student = new Student(ra, password);
-            StringEntity input = new StringEntity(student.toJson());
+        //TODO: treat all possible errors. this is only the happy path.
 
-            input.setContentType("application/json");
-            postRequest.setEntity(input);
+        Student student = new Student(ra, password);
+        OkHttpClient client = new OkHttpClient();
 
-            HttpResponse response = httpClient.execute(postRequest);
-
-
-            if (response.getStatusLine().getStatusCode() != 201) {
-                throw new RuntimeException("Failed : HTTP error code : "
-                        + response.getStatusLine().getStatusCode());
-            }
-            return EntityUtils.toString(response.getEntity());
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        } catch (ClientProtocolException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return "";
+        RequestBody body = RequestBody.create(JSON, student.toJson());
+        Request request = new Request.Builder()
+                .url("https://uniara-virtual-api.herokuapp.com/login")
+                .post(body)
+                .build();
+        Response response = client.newCall(request).execute();
+        System.out.println(response.body());
+        return response.body().toString()
     }
 }
