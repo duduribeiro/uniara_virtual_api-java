@@ -8,12 +8,22 @@ import java.io.IOException;
 public class UniaraVirtualAPI {
     public static final MediaType JSON
             = MediaType.parse("application/json; charset=utf-8");
+
+    private final OkHttpClient client;
+
+    public UniaraVirtualAPI() {
+        this(new OkHttpClient());
+    }
+
+    public UniaraVirtualAPI(OkHttpClient client) {
+        this.client = client;
+    }
+
     public String login(String ra, String password) throws IOException{
         //TODO: move all this shit here to a specific class to handle http requests
         //TODO: treat all possible errors. this is only the happy path.
 
         Student student = new Student(ra, password);
-        OkHttpClient client = new OkHttpClient();
 
         RequestBody body = RequestBody.create(JSON, student.toJson());
         Request request = new Request.Builder()
@@ -22,6 +32,6 @@ public class UniaraVirtualAPI {
                 .build();
         Response response = client.newCall(request).execute();
         System.out.println(response.body());
-        return response.body().toString()
+        return response.body().string();
     }
 }
