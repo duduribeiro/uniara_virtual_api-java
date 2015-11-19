@@ -1,6 +1,7 @@
 package me.carlosribeiro.uniara_virtual_api;
 
 import com.squareup.okhttp.*;
+import me.carlosribeiro.uniara_virtual_api.exceptions.InvalidLoginException;
 import me.carlosribeiro.uniara_virtual_api.models.Student;
 
 import java.io.IOException;
@@ -19,7 +20,7 @@ public class UniaraVirtualAPI {
         this.client = client;
     }
 
-    public String login(String ra, String password) throws IOException{
+    public String login(String ra, String password) throws IOException, InvalidLoginException {
         //TODO: move all this shit here to a specific class to handle http requests
         //TODO: treat all possible errors. this is only the happy path.
 
@@ -31,7 +32,9 @@ public class UniaraVirtualAPI {
                 .post(body)
                 .build();
         Response response = client.newCall(request).execute();
-        System.out.println(response.body());
+        if(response.code() == 400) {
+            throw new InvalidLoginException();
+        }
         return response.body().string();
     }
 }
